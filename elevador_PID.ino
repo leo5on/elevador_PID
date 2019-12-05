@@ -14,12 +14,12 @@
 double objetivo, entrada, saida;
 
 // Definição das constantes de controle
-double kp = 2,
-       ki = 2,
-       kd = 2;
+double kp = 25,
+       ki = 0.2,
+       kd = 0.02;
 
 //  Instanciamento da função PID
-PID myPID(&entrada, &saida, &objetivo, kp, ki, kd, REVERSE);
+PID myPID(&entrada, &saida, &objetivo, kp, ki, kd, DIRECT);
 
 //  Instanciamento da medição de distancia com o ultrassom
 UltraSonicDistanceSensor distanceSensor(trigger, echo);
@@ -28,7 +28,7 @@ void setup() {
 //  Padrão de entrada nula e set do andar a qual se deseja ir
   entrada = 0;
 //  Primeiro andar = 30 cm, Segundo andar = 60 cm, Terceiro andar = 90 cm, Quarto andar = 120 cm
-  objetivo = 30;
+  objetivo = 0;
 
 //  Escolha do modo da função PID
   myPID.SetMode(AUTOMATIC);
@@ -55,6 +55,7 @@ void loop() {
   if (entrada > objetivo) {
     Serial.println("distancia em cm: ");
     Serial.println(dist);
+//    Serial.println("entrada > obj");/
     digitalWrite(motor_A, HIGH); //Ativa o motor em stand-by
     digitalWrite(brake_A, LOW); //Desativa o freio do motor
 
@@ -67,6 +68,7 @@ void loop() {
   if (entrada < objetivo) {
     Serial.println("distancia em cm: ");
     Serial.println(dist); 
+//    Serial.println("entrada < obj");/
     digitalWrite(motor_A, LOW); //Ativa o motor em stand-by
     digitalWrite(brake_A, LOW); //Desativa o freio do motor
 

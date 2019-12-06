@@ -41,7 +41,7 @@ void setup() {
   pinMode(brake_A, OUTPUT);
   
 //  Limites de valores de pulso PWM para a função PID
-  myPID.SetOutputLimits(0,255);
+  myPID.SetOutputLimits(-255,255);
 
 //  Função que habilita o comunicador serial
   Serial.begin(9600);
@@ -52,18 +52,23 @@ void setup() {
 void serialEvent(){
   double andar_get;
   andar_get = Serial.read();
-  if (andar_get != 0 and (andar_get == 1 or andar_get == 2 or andar_get == 3)){
+  if (andar_get != '0' and (andar_get == '1' or andar_get == '2' or andar_get == '3')){
      Serial.println("Para qual andar deseja ir?");
-    objetivo = 30*andar_get;
+    objetivo = 30.0*(int)(andar_get - '0');
     permissao = true;
+    while(Serial.available()){
+      Serial.read();
+    }
   }
   else {
     Serial.println("Esse andar nao existe, reinicie e tente novamente");
   }
+  Serial.print("O andar selecionado foi: "); Serial.println(objetivo/30);
+  delay(2000);
 }
 
 void loop() {
-  Serial.print("Meu objetivo atual: "); Serial.println(objetivo);
+    //Serial.print("Meu objetivo atual: "); Serial.println(objetivo);
 /// linha para só começar o código depois que o setpoint for setado
   if(permissao) {
     // Obtenção da distancia atraves do sensor e estabecer como variável de entrada do PID
@@ -72,29 +77,25 @@ void loop() {
   
   //  Se a entrada for maior que o objetivo gire o motor em um sentido
     if (entrada > objetivo) {
-      Serial.println("distancia em cm: ");
-      Serial.println(dist);
-  //    Serial.println("entrada > obj");/
       digitalWrite(motor_A, HIGH); //Ativa o motor em stand-by
       digitalWrite(brake_A, LOW); //Desativa o freio do motor
   
   //    Parte responsável pelo controle PID
       myPID.Compute();
-      analogWrite(3, saida);
+      delay(500);
+      analogWrite(3, fabs(saida));
     }
   
   //  Se a entrada for menor que o objetivo, gire o motor no outro sentido
     if (entrada < objetivo) {
-      Serial.println("distancia em cm: ");
-      Serial.println(dist); 
-  //    Serial.println("entrada < obj");/
       digitalWrite(motor_A, LOW); //Ativa o motor em stand-by
       digitalWrite(brake_A, LOW); //Desativa o freio do motor
   
   //    Parte responsável pelo controle PID
       myPID.Compute();
+      delay(500);
       analogWrite(3, saida); 
-      }
+    }
       
   }
   delay(1);

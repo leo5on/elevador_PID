@@ -46,7 +46,24 @@ void setup() {
   
 }
 
+double andar(){
+  double andar_get;
+  Serial.println("Para qual andar deseja ir?");
+  andar_get = Serial.read();
+  if (andar_get != 0 and (andar_get == 1 or andar_get == 2 or andar_get == 3)){
+    return andar_get;
+  }
+  else {
+    Serial.println("Esse andar nao existe, reinicie e tente novamente");
+  }
+}
+
 void loop() {
+  double get_andar;
+  while (objetivo == 0){
+    get_andar = andar();
+    objetivo = get_andar;
+  }
   // Obtenção da distancia atraves do sensor e estabecer como variável de entrada do PID
   float dist = distanceSensor.measureDistanceCm();
   entrada = dist;
